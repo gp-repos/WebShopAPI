@@ -5,7 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using WebShop.Core.DataAccess.Interfaces;
+using WebShop.Core.Domain.Entities;
 using WebShop.Data;
+using WebShop.Data.Repository;
 
 namespace WebShop.API
 {
@@ -23,11 +26,15 @@ namespace WebShop.API
         {
             services.AddDbContext<DatabaseContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("sqlConnection")));
 
-            services.AddControllers();
+            services.AddTransient<IGenericRepository<Category>, GenericRepository<Category>>();
+            services.AddTransient<IGenericRepository<Product>, GenericRepository<Product>>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop.API", Version = "v1" });
             });
+            
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
