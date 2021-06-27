@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebShop.Core.Domain.Entities;
+using WebShop.Data.Configurations.Entities;
 
 namespace WebShop.Data
 {
@@ -14,6 +15,8 @@ namespace WebShop.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.ApplyConfiguration(new CategoryConfiguration());
+            builder.ApplyConfiguration(new ProductConfiguration());
         }
     }
 }
