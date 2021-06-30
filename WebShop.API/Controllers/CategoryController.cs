@@ -1,24 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Domain.Entities;
 
-namespace WebShop.API.Controllers
+namespace ProductListing.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
         private readonly IGenericRepository<Category> _categoryRepository;
+        private readonly ILogger<CategoryController> _logger;
 
-        public CategoryController(IGenericRepository<Category> categoryRepository)
+        public CategoryController(IGenericRepository<Category> categoryRepository, ILogger<CategoryController> logger)
         {
             _categoryRepository = categoryRepository;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCategoryies()
+        public async Task<IActionResult> GetCategories()
         {
             var categories = await _categoryRepository.GetAll();
             return Ok(categories);
@@ -39,6 +42,7 @@ namespace WebShop.API.Controllers
         {
             if (id < 1)
             {
+                _logger.LogError($"Invalid DELETE attempt in {nameof(DeleteCategory)}");
                 return BadRequest();
             }
 
@@ -46,6 +50,7 @@ namespace WebShop.API.Controllers
             await _categoryRepository.Save();
 
             return NoContent();
+
         }
     }
 }

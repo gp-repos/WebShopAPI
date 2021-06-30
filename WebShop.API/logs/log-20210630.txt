@@ -1,0 +1,2 @@
+2021-06-30 16:44:07.099 +03:00 [INF] Application Is Starting
+2021-06-30 16:45:42.029 +03:00 [INF] Application Is Starting
