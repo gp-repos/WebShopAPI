@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,8 @@ namespace WebShop.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DatabaseContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("sqlConnection")));
+
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             services.AddTransient<IGenericRepository<Category>, GenericRepository<Category>>();
             services.AddTransient<IGenericRepository<Product>, GenericRepository<Product>>();

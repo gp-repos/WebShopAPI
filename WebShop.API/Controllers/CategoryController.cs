@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using WebShop.API.Models.Category;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Domain.Entities;
 
-namespace ProductListing.Controllers
+namespace WebShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -13,18 +16,22 @@ namespace ProductListing.Controllers
     {
         private readonly IGenericRepository<Category> _categoryRepository;
         private readonly ILogger<CategoryController> _logger;
+        private readonly IMapper _mapper;
 
-        public CategoryController(IGenericRepository<Category> categoryRepository, ILogger<CategoryController> logger)
+        public CategoryController(IGenericRepository<Category> categoryRepository, ILogger<CategoryController> logger,
+            IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await _categoryRepository.GetAll();
-            return Ok(categories);
+            var results = _mapper.Map<IList<CategoryDTO>>(categories);
+            return Ok(results);
         }
 
         [HttpGet("{id:int}", Name = "GetCategory")]
@@ -34,7 +41,44 @@ namespace ProductListing.Controllers
             if (category == null)
                 return NotFound();
 
-            return Ok(category);
+            var result = _mapper.Map<CategoryDTO>(category);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDTO categoryDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError($"Invalid POST attempt in {nameof(CreateCategory)}");
+                return BadRequest(ModelState);
+            }
+
+            var category = _mapper.Map<Category>(categoryDTO);
+            await _categoryRepository.Insert(category);
+            await _categoryRepository.Save();
+
+            return CreatedAtRoute("GetCategory", new { id = category.Id }, category);
+
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDTO categoryDTO)
+        {
+            if (!ModelState.IsValid || id < 1)
+            {
+                _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateCategory)}");
+                return BadRequest(ModelState);
+            }
+
+            var category = _mapper.Map<Category>(categoryDTO);
+            category.Id = id;
+
+            await _categoryRepository.Update(category.Id, category);
+            await _categoryRepository.Save();
+
+            return NoContent();
+
         }
 
         [HttpDelete("{id:int}")]
