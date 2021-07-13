@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using WebShop.API.Models;
 using WebShop.API.Models.Product;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Domain.Entities;
+using WebShop.Core.Models;
 
 namespace WebShop.API.Controllers
 {
@@ -30,11 +32,12 @@ namespace WebShop.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts([FromQuery] PageRequestParams pageRequestParams)
         {
-            var products = await _productRepository.GetAll();
+            var products = await _productRepository.GetPagedList(pageRequestParams);
             var results = _mapper.Map<IList<ProductDTO>>(products);
-            return Ok(results);
+            var pagedResults = ApiPagedList<ProductDTO>.FromList(results, products.GetMetaData());
+            return Ok(pagedResults);
         }
 
         [HttpGet("{id:int}", Name = "GetProduct")]

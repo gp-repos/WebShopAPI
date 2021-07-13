@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WebShop.API.Models;
 using WebShop.API.Models.Category;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Domain.Entities;
+using WebShop.Core.Models;
 
 namespace WebShop.API.Controllers
 {
@@ -30,11 +32,12 @@ namespace WebShop.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetCategories([FromQuery] PageRequestParams pageRequestParams)
         {
-            var categories = await _categoryRepository.GetAll();
+            var categories = await _categoryRepository.GetPagedList(pageRequestParams);
             var results = _mapper.Map<IList<CategoryDTO>>(categories);
-            return Ok(results);
+            var pagedResults = ApiPagedList<CategoryDTO>.FromList(results, categories.GetMetaData());
+            return Ok(pagedResults);
         }
 
         [HttpGet("{id:int}", Name = "GetCategory")]

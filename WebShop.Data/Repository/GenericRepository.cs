@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using WebShop.Core.DataAccess.Interfaces;
+using WebShop.Core.Models;
+using X.PagedList;
 
 namespace WebShop.Data.Repository
 {
@@ -60,6 +62,32 @@ namespace WebShop.Data.Repository
             return await query.AsNoTracking().ToListAsync();
         }
 
+        public async Task<IPagedList<T>> GetPagedList(PageRequestParams pageRequestParams, 
+            Expression<Func<T, bool>> expression = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+            IQueryable<T> query = _db;
+
+            if (expression != null)
+            {
+                query = query.Where(expression);
+            }
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            return await query.AsNoTracking()
+                .ToPagedListAsync(pageRequestParams.PageNumber, pageRequestParams.PageSize);
+        }
+
         public async Task Insert(T entity)
         {
             await _db.AddAsync(entity);
@@ -84,7 +112,7 @@ namespace WebShop.Data.Repository
         {
             var entity = await _db.FindAsync(id);
             if (entity is not null)
-            _db.Remove(entity);
+                _db.Remove(entity);
         }
 
         public void DeleteRange(IEnumerable<T> entities)
