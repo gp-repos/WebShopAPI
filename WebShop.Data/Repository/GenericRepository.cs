@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Models;
+using WebShop.Core.Models.Exceptions;
 using X.PagedList;
 
 namespace WebShop.Data.Repository
@@ -101,18 +102,20 @@ namespace WebShop.Data.Repository
         public async Task Update(int id, T entity)
         {
             var exist = await _db.FindAsync(id);
-            if (exist is not null)
-            {
-                _db.Attach(entity);
-                _context.Entry(entity).State = EntityState.Modified;
-            }
+            if (exist is null)
+                throw new NotFoundException(typeof(T).Name, id);
+
+            _context.Entry(exist).State = EntityState.Detached;
+            _db.Update(entity);
         }
 
         public async Task Delete(int id)
         {
             var entity = await _db.FindAsync(id);
-            if (entity is not null)
-                _db.Remove(entity);
+            if (entity is null)
+                throw new NotFoundException(typeof(T).Name, id);
+
+            _db.Remove(entity);
         }
 
         public void DeleteRange(IEnumerable<T> entities)
