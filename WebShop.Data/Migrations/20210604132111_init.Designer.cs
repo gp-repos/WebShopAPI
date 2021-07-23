@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace WebShop.Data.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20210604132111_init")]
     partial class init
     {

@@ -4,9 +4,9 @@ using WebShop.Data.Configurations.Entities;
 
 namespace WebShop.Data
 {
-    public class DatabaseContext : DbContext
+    public class AppDbContext : DbContext
     {
-        public DatabaseContext(DbContextOptions options) : base(options)
+        public AppDbContext(DbContextOptions options) : base(options)
         { }
 
         public DbSet<Category> Categories { get; set; }

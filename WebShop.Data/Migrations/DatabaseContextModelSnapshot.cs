@@ -7,7 +7,7 @@ using WebShop.Data;
 
 namespace WebShop.Data.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
+    [DbContext(typeof(AppDbContext))]
     partial class DatabaseContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -8,7 +8,7 @@ using WebShop.Data;
 
 namespace WebShop.Data.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20210627110019_seed-data")]
     partial class seeddata
     {
