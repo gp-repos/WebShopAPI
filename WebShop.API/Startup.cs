@@ -28,6 +28,14 @@ namespace WebShop.API
         {
             services.AddDbContext<DatabaseContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("sqlConnection")));
 
+            services.AddCors(o =>
+            {
+                o.AddPolicy("AllowAll", builder =>
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             services.AddTransient<IGenericRepository<Category>, GenericRepository<Category>>();
@@ -44,11 +52,11 @@ namespace WebShop.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-         //   if (env.IsDevelopment())
+            if (env.IsDevelopment())
             {
-           //     app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
             }
-           // else
+            else
             {
                 app.UseMiddleware<ExceptionMiddleware>();
             }
@@ -61,6 +69,8 @@ namespace WebShop.API
             });
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAll");
 
             app.UseRouting();
 
