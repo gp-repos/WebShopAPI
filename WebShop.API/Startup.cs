@@ -48,10 +48,7 @@ namespace WebShop.API
             services.AddTransient<IGenericRepository<Product>, GenericRepository<Product>>();
             services.AddScoped<IAuthManager, AuthManager>();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop API", Version = "v1" });
-            });
+            services.ConfigureSwaggerDoc();
 
             services.AddControllers().AddNewtonsoftJson(op => op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
@@ -69,11 +66,7 @@ namespace WebShop.API
             }
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
-                c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "WebShop API v1");
-            });
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "WebShop API v1"));
 
             app.UseHttpsRedirection();
 
