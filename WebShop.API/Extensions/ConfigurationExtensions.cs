@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using UserManagement.Core.Domain.Entities;
 using WebShop.Data;
 
-namespace ProductListing.API.Extensions
+namespace WebShop.API.Extensions
 {
     public static class ConfigurationExtensions
     {
@@ -16,6 +21,30 @@ namespace ProductListing.API.Extensions
             builder.AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
         }
 
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration Configuration)
+        {
+            var jwtSettings = Configuration.GetSection("JWT");
+            var key = Configuration.GetSection("AuthSecureKey").Value;
+            if (string.IsNullOrEmpty(key))
+                throw new Exception("JWT AuthSecureKey not specified");
 
+            services.AddAuthentication(o =>
+                {
+                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(o =>
+                {
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                    };
+                });
+        }
     }
 }

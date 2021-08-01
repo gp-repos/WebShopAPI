@@ -6,12 +6,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using ProductListing.API.Extensions;
+using UserManagement.Core.Services.Interfaces;
 using WebShop.API.Extensions;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Domain.Entities;
 using WebShop.Data;
 using WebShop.Data.Repository;
+using WebShop.Infrastructure.Services;
 
 namespace WebShop.API
 {
@@ -31,6 +32,7 @@ namespace WebShop.API
 
             services.AddAuthentication();
             services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
 
             services.AddCors(o =>
             {
@@ -44,6 +46,7 @@ namespace WebShop.API
 
             services.AddTransient<IGenericRepository<Category>, GenericRepository<Category>>();
             services.AddTransient<IGenericRepository<Product>, GenericRepository<Product>>();
+            services.AddScoped<IAuthManager, AuthManager>();
 
             services.AddSwaggerGen(c =>
             {
@@ -78,6 +81,7 @@ namespace WebShop.API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
