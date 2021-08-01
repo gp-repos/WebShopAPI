@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using ProductListing.API.Extensions;
 using WebShop.API.Extensions;
 using WebShop.Core.DataAccess.Interfaces;
 using WebShop.Core.Domain.Entities;
@@ -27,6 +28,9 @@ namespace WebShop.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("sqlConnection")));
+
+            services.AddAuthentication();
+            services.ConfigureIdentity();
 
             services.AddCors(o =>
             {
