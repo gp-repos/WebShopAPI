@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,13 +49,15 @@ namespace WebShop.API
             services.AddTransient<IGenericRepository<Product>, GenericRepository<Product>>();
             services.AddScoped<IAuthManager, AuthManager>();
 
+            services.ConfigureVersioning();
+
             services.ConfigureSwaggerDoc();
 
             services.AddControllers().AddNewtonsoftJson(op => op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             if (env.IsDevelopment())
             {
@@ -66,7 +69,15 @@ namespace WebShop.API
             }
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "WebShop API v1"));
+            
+            //      app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/swagger.json", "WebShop API v1"));
+            app.UseSwaggerUI(opt =>
+            {
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    opt.SwaggerEndpoint($"{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+            });
 
             app.UseHttpsRedirection();
 

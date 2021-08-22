@@ -5,7 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using UserManagement.Core.Domain.Entities;
 using WebShop.Data;
 
@@ -50,9 +56,21 @@ namespace WebShop.API.Extensions
 
         public static void ConfigureSwaggerDoc(this IServiceCollection services)
         {
+            var provider = services.BuildServiceProvider().GetService<IApiVersionDescriptionProvider>();
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop API", Version = "v1" });
+                // c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop API", Version = "v1" });
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    c.SwaggerDoc(
+                        description.GroupName,
+                        new OpenApiInfo()
+                        {
+                            Title = $"WebShop API v{description.ApiVersion}",
+                            Version = description.ApiVersion.ToString(),
+                        });
+                }
 
                 c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
                 {
@@ -79,5 +97,20 @@ namespace WebShop.API.Extensions
                 });
             });
         }
+
+        public static void ConfigureVersioning(this IServiceCollection services)
+        {
+            services.AddApiVersioning(opt =>
+             {
+                 opt.ReportApiVersions = true;
+                 opt.AssumeDefaultVersionWhenUnspecified = true;
+                 opt.DefaultApiVersion = new ApiVersion(1, 0);
+               //  opt.ApiVersionReader = new HeaderApiVersionReader("api-version");
+             });
+
+            services.AddVersionedApiExplorer(opt => opt.GroupNameFormat = "'v'VVV");
+
+        }
     }
+
 }

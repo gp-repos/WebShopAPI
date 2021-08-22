@@ -14,8 +14,10 @@ using WebShop.Core.Models;
 
 namespace WebShop.API.Controllers
 {
-    [Route("api/[controller]")]
+
     [ApiController]
+    [Route("api/[controller]")]
+
     public class ProductController : ControllerBase
     {
         private readonly IGenericRepository<Product> _productRepository;

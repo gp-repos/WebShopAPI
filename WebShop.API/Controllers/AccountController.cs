@@ -11,8 +11,8 @@ using WebShop.API.Models.User;
 
 namespace WebShop.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
