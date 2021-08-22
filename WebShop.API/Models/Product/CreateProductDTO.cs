@@ -16,8 +16,6 @@ namespace WebShop.API.Models.Product
         [Required]
         public string Description { get; set; }
 
-        public string ImageFile { get; set; }
-
         [Required]
         [Range(1, 100000)]
         public decimal Price { get; set; }

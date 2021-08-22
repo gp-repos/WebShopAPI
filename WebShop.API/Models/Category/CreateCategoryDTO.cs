@@ -11,6 +11,5 @@ namespace WebShop.API.Models.Category
         [Required]
         public string Description { get; set; }
 
-        public string ImageName { get; set; }
     }
 }
